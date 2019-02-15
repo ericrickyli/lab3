@@ -153,7 +153,7 @@ For example:
 let transcript (enrollments : enrollment list)
                (student : int)
              : enrollment list =
-    let enroll_match (en: enrollment) (num: int) : bool =
+    let enroll_match (num: int) (en: enrollment) : bool =
       match en with
       | {name = _n; id = i; course = _c} -> i=num in
   List.filter (enroll_match student) (enrollments) ;;
@@ -171,8 +171,12 @@ For example:
     - : int list = [482958285; 603858772; 993855891]
 ......................................................................*)
 
-let ids (enrollments: enrollment list) : int list =
-  failwith "ids not implemented" ;;
+let rec ids (enrollments: enrollment list) : int list =
+  match enrollments with
+  | [] -> []
+  | hd :: tl ->
+    match hd with
+    | {name = n; id = i; course = s} -> List.sort_uniq (compare) (i :: ids tl) ;;
 
 (*......................................................................
 Exercise 9: Define a function called verify that determines whether all
@@ -184,8 +188,47 @@ For example:
 - : bool = false
 ......................................................................*)
 
-let verify (enrollments : enrollment list) : bool =
-  failwith "verify not implemented" ;;
+let rec verify (enrollments : enrollment list) : bool =
+  match enrollments with
+  | [] -> true
+  | h :: t ->
+  match ids enrollments with
+  | [] -> true
+  | hd1 :: tl1 ->
+    match transcript (enrollments) (hd1) with
+    | [] -> true
+    | {name = n; id = i; course = c} :: tl2 ->
+    let rec extract_name (lst: enrollment list) : string list =
+      match lst with
+      | [] -> []
+      | {name = m; id = j; course = d} :: tl3 -> m :: extract_name tl3 in
+  (List.filter ((!=) n) (extract_name tl2) = []) && verify t ;;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 (*======================================================================
 Part 3: Polymorphism
